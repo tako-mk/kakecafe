@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAKE café | 現在の空き状況</title>
+  <link rel="icon" href="kakecafe_logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Zen+Maru+Gothic:wght@500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <img src="kakecafe_logo.png" alt="KAKE café Logo" class="logo-img">
+      <h1>KAKE café</h1>
+    </header>
+
+    <div class="card">
+      <div class="update-time" id="update-time">データの取得中...</div>
+
+      <h2>現在の混雑状況</h2>
+      <div id="congestion-status" class="status-display">—</div>
+
+      <button id="reload-btn" class="btn">最新の情報に更新</button>
+    </div>
+
+    <div class="card">
+      <h2>本日のメニュー表</h2>
+      <ul id="menu-list" class="menu-list">
+        <li class="menu-loading">データの取得中...</li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAKE café | 店員専用・更新用ページ</title>
+  <link rel="icon" href="kakecafe_logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Zen+Maru+Gothic:wght@500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <img src="kakecafe_logo.png" alt="KAKE café Logo" class="logo-img">
+      <h1>KAKE café (staff only)</h1>
+    </header>
+
+    <!-- ログイン(合言葉)セクション -->
+    <div id="login-section" class="card admin-login">
+      <h2>合言葉を入力してください</h2>
+      <p>このページは店員専用です。</p>
+      <input type="password" id="password-input" class="input-field" placeholder="合言葉">
+      <br>
+      <button id="login-btn" class="btn">ログイン</button>
+      <p id="login-error" style="color: red; display: none; font-weight: bold; margin-top: 10px;">合言葉が違います</p>
+    </div>
+
+    <!-- 更新フォームセクション -->
+    <div id="admin-section" class="card hidden">
+      <h2>情報の更新</h2>
+
+      <div class="form-group">
+        <label>現在の混雑状況を選択：</label>
+        <div class="radio-group">
+          <label><input type="radio" name="congestion" value="空席あり" checked> 空席あり</label>
+          <label><input type="radio" name="congestion" value="やや混雑"> やや混雑</label>
+          <label><input type="radio" name="congestion" value="満席"> 満席</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>メニューの提供状況：</label>
+        <div id="admin-menu-list" class="admin-menu-list">
+          <!-- JSで動的に追加されます -->
+        </div>
+      </div>
+
+      <button id="save-btn" class="btn">この内容で更新する</button>
+      <div id="save-message"></div>
+    </div>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+
+</html>
