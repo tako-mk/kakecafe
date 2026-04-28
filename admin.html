@@ -21,11 +21,11 @@
       <h1>KAKE café (staff only)</h1>
     </header>
 
-    <!-- ログイン(合言葉)セクション -->
+    <!-- ログイン(パスワード)セクション -->
     <div id="login-section" class="card admin-login">
-      <h2>合言葉を入力してください</h2>
-      <p>このページは店員専用です。</p>
-      <input type="password" id="password-input" class="input-field" placeholder="合言葉">
+      <h2>パスワードを入力</h2>
+      <p>このページはスタッフ専用です。</p>
+      <input type="password" id="password-input" class="input-field" placeholder="password">
       <br>
       <button id="login-btn" class="btn">ログイン</button>
       <p id="login-error" style="color: red; display: none; font-weight: bold; margin-top: 10px;">合言葉が違います</p>
@@ -54,6 +54,12 @@
       <button id="save-btn" class="btn">この内容で更新する</button>
       <div id="save-message"></div>
     </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>&copy; takamaru / kakecafé project</p>
+    <a href="index.html">トップページに戻る</a>
+  </footer>
   </div>
 
   <script type="module" src="admin.js"></script>
