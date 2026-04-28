@@ -37,8 +37,7 @@ const loginError = document.getElementById('login-error');
 const saveMessage = document.getElementById('save-message');
 
 // ==========================================
-// メニューの定義（ここを書き換えることでメニューを変更できます）
-// ※app.jsと同じリストにしてください
+// メニューの定義
 // ==========================================
 const MENU_CATEGORIES = [
   {

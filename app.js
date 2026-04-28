@@ -29,7 +29,7 @@ const soldoutListEl = document.getElementById('soldout-list');
 const reloadBtn = document.getElementById('reload-btn');
 
 // ==========================================
-// メニューの定義（ここを書き換えることでメニューを変更できます）
+// メニューの定義
 // ==========================================
 const MENU_CATEGORIES = [
   {
