@@ -199,9 +199,9 @@ header h1 {
 }
 
 .toggle-group label {
-  font-size: 0.9rem !important;
+  font-size: 0.8rem !important;
   margin-bottom: 0 !important;
-  padding: 5px 5px !important;
+  padding: 3px 3px !important;
   display: flex;
   align-items: center;
   background: white;
