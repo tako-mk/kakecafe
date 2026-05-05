@@ -43,7 +43,9 @@ const MENU_CATEGORIES = [
   {
     categoryName: "Food",
     items: [
-      { name: "きんぴらパン" },
+      {
+        name: "頑固おやじのきんぴらパン",
+      },
       {
         name: "ホットドッグ/チリドッグ",
         children: [
@@ -51,22 +53,45 @@ const MENU_CATEGORIES = [
           { name: "チリドッグ" },
         ]
       },
-      { name: "フライドポテト" },
-      { name: "ポンデケージョ" },
-      { name: "ぜんざい" },
-      { name: "パンナコッタ" },
-      { name: "ミニパフェ" },
-      { name: "チョコチップスコーン" },
-      { name: "オレンジパウンドケーキ" },
+      {
+        name: "揚げ物屋 MANABU",
+      },
+      {
+        name: "ポンデケージョだじょ。",
+      },
+      {
+        name: "かおりんのぜんざい",
+        children: [
+          { name: "温（餅入り）" },
+          { name: "冷（白玉入り）" }
+        ]
+      },
+      {
+        name: "ゆんゆんのパンナコッタ",
+      },
+      {
+        name: "ミニ・パルフェ",
+      },
+      {
+        name: "チョコチップスコーン",
+      },
+      {
+        name: "オレンジパウンドケーキ",
+      },
     ]
   },
   {
     categoryName: "Drink",
     items: [
-      { name: "ほうじ茶" },
-      { name: "アイスコーヒー" },
-      { name: "スイートミルクコーヒー" },
-      { name: "モクテル" },
+      {
+        name: "Bar Ryoji",
+        children: [
+          { name: "ほうじ茶" },
+          { name: "アイスコーヒー" },
+          { name: "スイート\nミルクコーヒー" },
+          { name: "モクテル" }
+        ]
+      }
     ]
   }
 ];
