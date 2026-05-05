@@ -23,7 +23,7 @@ const db = getFirestore(app);
 // ==========================================
 // 合言葉の設定
 // ==========================================
-const SECRET_PASSWORD = "staff";
+const SECRET_PASSWORD = "1111";
 
 // ==========================================
 // 画面要素の取得
@@ -110,14 +110,13 @@ const saveBtn = document.getElementById('save-btn');
 // ログイン処理
 // ==========================================
 function attemptLogin() {
-  const userInput = passwordInput.value;
+  const userInput = passwordInput.value
+    .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)); // 全角数字→半角に変換
   if (userInput === SECRET_PASSWORD) {
-    // ログイン成功: 管理画面を表示して、現在のデータを読み込む
     loginSection.classList.add('hidden');
     adminSection.classList.remove('hidden');
     fetchCurrentData();
   } else {
-    // ログイン失敗
     loginError.style.display = 'block';
   }
 }
