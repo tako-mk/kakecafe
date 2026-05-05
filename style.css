@@ -107,7 +107,7 @@ header h1 {
 .menu-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   padding: 15px 10px;
   border-bottom: 1px dashed var(--cafe-border);
 }
