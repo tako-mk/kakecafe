@@ -41,6 +41,7 @@ const MENU_CATEGORIES = [
         name: "頑固おやじのきんぴらパン",
         image: "assets/Kimpira_bread_of_gankooyaji.jpg",
         subtitle: "美味しいなんてお世辞はいらない\n食べて笑顔になればいい",
+        takeout: true
       },
       {
         name: "ホットドッグ/チリドッグ",
@@ -60,6 +61,7 @@ const MENU_CATEGORIES = [
         name: "ポンデケージョだじょ。",
         image: "assets/Pão_de_Queijo_dajo.jpg",
         subtitle: "もちもちチーズパン。\nあすかの愛はデッケージョ。",
+        takeout: true
       },
       {
         name: "かおりんのぜんざい",
@@ -74,6 +76,7 @@ const MENU_CATEGORIES = [
         name: "ゆんゆんのパンナコッタ",
         image: "assets/Panna_cotta_of_yunyun.jpg",
         subtitle: "ナンテコッタ！？\nお口の中で奏でるおいしさ♪",
+        takeout: true
       },
       {
         name: "ミニ・パルフェ",
@@ -84,11 +87,13 @@ const MENU_CATEGORIES = [
         name: "チョコチップスコーン",
         image: "assets/Chocolate_chip_scone.jpg",
         subtitle: "ヒロポンのやさしさと\nチョコたっぷり 甘さは控えめ",
+        takeout: true
       },
       {
         name: "オレンジパウンドケーキ",
         image: "assets/Orange_pound_cake.jpg",
         subtitle: "ふわっと香ってしっとり消える\n陽だまりあやちゃんの",
+        takeout: true
       },
     ]
   },
@@ -215,6 +220,13 @@ function renderStatus(data) {
         nameSpan.className = 'menu-name';
         nameSpan.textContent = item.name;
         infoDiv.appendChild(nameSpan);
+
+        if (item.takeout) {
+          const takeoutSpan = document.createElement('span');
+          takeoutSpan.className = 'menu-takeout';
+          takeoutSpan.textContent = '- テイクアウト可';
+          infoDiv.appendChild(takeoutSpan);
+        }
 
         if (item.children) {
           // 子アイテムのバッジを横並びで表示

@@ -122,6 +122,12 @@ header h1 {
   min-width: 0;
 }
 
+.menu-takeout {
+  font-size: 0.8rem;
+  color: #e28b08;
+  font-weight: bold;
+}
+
 /* メニュー情報エリア（画像 + サブタイトル + メニュー名をまとめる） */
 .menu-info {
   display: flex;
