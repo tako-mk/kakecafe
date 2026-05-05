@@ -101,6 +101,7 @@ const MENU_CATEGORIES = [
         subtitle: "やさしい時間を、一杯。",
         children: [
           { name: "ほうじ茶" },
+          { name: "ホットコーヒー" },
           { name: "アイスコーヒー" },
           { name: "スイート\nミルクコーヒー" },
           { name: "モクテル" }

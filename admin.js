@@ -87,6 +87,7 @@ const MENU_CATEGORIES = [
         name: "Bar Ryoji",
         children: [
           { name: "ほうじ茶" },
+          { name: "ホットコーヒー" },
           { name: "アイスコーヒー" },
           { name: "スイート\nミルクコーヒー" },
           { name: "モクテル" }
