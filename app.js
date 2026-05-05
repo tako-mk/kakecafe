@@ -30,35 +30,89 @@ const reloadBtn = document.getElementById('reload-btn');
 
 // ==========================================
 // メニューの定義
+// 各アイテムは { name, image(任意), subtitle(任意) } のオブジェクト
+// subtitle: 後から編集する場合はコメントを外して文字列を設定してください
 // ==========================================
 const MENU_CATEGORIES = [
   {
     categoryName: "Food",
     items: [
-      "フライドポテト",
-      "きんぴらパン",
-      "チリドッグ",
-      "ホットドッグ",
-      "ぜんざい",
-      "ミニパフェ",
-      "パンナコッタ",
-      "チョコチップスコーン",
-      "ゼリー",
-      "ポンデケージョ"
+      {
+        name: "頑固おやじのきんぴらパン",
+        image: "assets/Kimpira_bread_of_gankooyaji.jpg",
+        subtitle: "美味しいなんてお世辞はいらない\n食べて笑顔になればいい",
+      },
+      {
+        name: "ホットドッグ/チリドッグ",
+        image: "assets/Hotdog_chilidog.jpg",
+        subtitle: "ナモスバーガーの再現度99%\nあなたはHot OR Chili？",
+        children: [
+          { name: "ホットドッグ" },
+          { name: "チリドッグ" },
+        ]
+      },
+      {
+        name: "揚げ物屋 MANABU",
+        image: "assets/Agemonoya_manabu.jpg",
+        subtitle: "気分もアゲアゲ？",
+      },
+      {
+        name: "ポンデケージョだじょ。",
+        image: "assets/Pão_de_Queijo_dajo.jpg",
+        subtitle: "もちもちチーズパン。\nあすかの愛はデッケージョ。",
+      },
+      {
+        name: "かおりんのぜんざい",
+        image: "assets/Zenzai_of_kaorin.jpg",
+        subtitle: "潜在能力全開！\nおいしさぜんだいみもん",
+        children: [
+          { name: "温（餅入り）" },
+          { name: "冷（白玉入り）" }
+        ]
+      },
+      {
+        name: "ゆんゆんのパンナコッタ",
+        image: "assets/Panna_cotta_of_yunyun.jpg",
+        subtitle: "ナンテコッタ！？\nお口の中で奏でるおいしさ♪",
+      },
+      {
+        name: "ミニ・パルフェ",
+        image: "assets/Mini_parfait.jpg",
+        subtitle: "今日の気分は何味？\nカスタム自由 シェフMAKI監修",
+      },
+      {
+        name: "チョコチップスコーン",
+        image: "assets/Chocolate_chip_scone.jpg",
+        subtitle: "ヒロポンのやさしさと\nチョコたっぷり 甘さは控えめ",
+      },
+      {
+        name: "オレンジパウンドケーキ",
+        image: "assets/Orange_pound_cake.jpg",
+        subtitle: "ふわっと香ってしっとり消える\n陽だまりあやちゃんの",
+      },
     ]
   },
   {
     categoryName: "Drink",
     items: [
-      "ほうじ茶",
-      "アイスコーヒー",
-      "スイートミルクコーヒー",
-      "モクテル"
+      {
+        name: "Bar Ryoji",
+        image: "assets/Bar_ryoji.jpg",
+        subtitle: "やさしい時間を、一杯。",
+        children: [
+          { name: "ほうじ茶" },
+          { name: "アイスコーヒー" },
+          { name: "スイート\nミルクコーヒー" },
+          { name: "モクテル" }
+        ]
+      }
     ]
   }
 ];
 // 全てのメニューを取得するための補助配列
-const MENU_ITEMS = MENU_CATEGORIES.flatMap(c => c.items);
+const MENU_ITEMS = MENU_CATEGORIES.flatMap(c =>
+  c.items.flatMap(item => item.children ? item.children.map(ch => ch.name) : [item.name])
+);
 
 // ==========================================
 // データの取得と表示
@@ -133,45 +187,100 @@ function renderStatus(data) {
       categoryHeader.textContent = category.categoryName;
       menuListEl.appendChild(categoryHeader);
 
-      category.items.forEach(itemName => {
-        // ステータスを判定（旧データ互換: true→"available", false→"soldout"）
-        const raw = menuStatus[itemName];
-        let status;
-        if (raw === true || raw === undefined) {
-          status = 'available';
-        } else if (raw === false) {
-          status = 'soldout';
-        } else {
-          status = raw; // "available", "few", "soldout"
-        }
-        
+      // renderStatus 内の category.items.forEach を以下に置き換え
+      category.items.forEach(item => {
         const li = document.createElement('li');
-        if (status === 'soldout') {
-          li.className = 'menu-item sold-out';
-        } else if (status === 'few') {
-          li.className = 'menu-item few-left';
-        } else {
-          li.className = 'menu-item available';
+        li.className = 'menu-item menu-item-parent';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'menu-info';
+
+        if (item.image) {
+          const img = document.createElement('img');
+          img.src = item.image;
+          img.alt = item.name;
+          img.className = 'menu-img';
+          infoDiv.appendChild(img);
         }
-        
+
+        if (item.subtitle) {
+          const subtitleSpan = document.createElement('span');
+          subtitleSpan.className = 'menu-subtitle';
+          subtitleSpan.textContent = item.subtitle;
+          infoDiv.appendChild(subtitleSpan);
+        }
+
         const nameSpan = document.createElement('span');
         nameSpan.className = 'menu-name';
-        nameSpan.textContent = itemName;
+        nameSpan.textContent = item.name;
+        infoDiv.appendChild(nameSpan);
 
-        const badgeSpan = document.createElement('span');
-        if (status === 'soldout') {
-          badgeSpan.className = 'badge badge-ng';
-          badgeSpan.textContent = '終了';
-        } else if (status === 'few') {
-          badgeSpan.className = 'badge badge-few';
-          badgeSpan.textContent = 'あと少し';
+        if (item.children) {
+          // 子アイテムのバッジを横並びで表示
+          const childrenDiv = document.createElement('div');
+          childrenDiv.className = 'menu-children';
+
+          item.children.forEach(child => {
+            const raw = menuStatus[child.name];
+            let status;
+            if (raw === true || raw === undefined) status = 'available';
+            else if (raw === false) status = 'soldout';
+            else status = raw;
+
+            const childSpan = document.createElement('div');
+            childSpan.className = `menu-child${status === 'soldout' ? ' sold-out' : ''}`;
+
+            const childName = document.createElement('span');
+            childName.className = 'menu-child-name';
+            childName.textContent = child.name;
+
+            const badge = document.createElement('span');
+            if (status === 'soldout') {
+              badge.className = 'badge badge-ng';
+              badge.textContent = '終了';
+            } else if (status === 'few') {
+              badge.className = 'badge badge-few';
+              badge.textContent = 'あと少し';
+            } else {
+              badge.className = 'badge badge-ok';
+              badge.textContent = '提供中';
+            }
+
+            childSpan.appendChild(childName);
+            childSpan.appendChild(badge);
+            childrenDiv.appendChild(childSpan);
+          });
+
+          infoDiv.appendChild(childrenDiv);
+          li.appendChild(infoDiv);
         } else {
-          badgeSpan.className = 'badge badge-ok';
-          badgeSpan.textContent = '提供中';
+          // 通常アイテム
+          const raw = menuStatus[item.name];
+          let status;
+          if (raw === true || raw === undefined) status = 'available';
+          else if (raw === false) status = 'soldout';
+          else status = raw;
+
+          if (status === 'soldout') li.className = 'menu-item sold-out';
+          else if (status === 'few') li.className = 'menu-item few-left';
+          else li.className = 'menu-item available';
+
+          const badge = document.createElement('span');
+          if (status === 'soldout') {
+            badge.className = 'badge badge-ng';
+            badge.textContent = '終了';
+          } else if (status === 'few') {
+            badge.className = 'badge badge-few';
+            badge.textContent = 'あと少し';
+          } else {
+            badge.className = 'badge badge-ok';
+            badge.textContent = '提供中';
+          }
+
+          li.appendChild(infoDiv);
+          li.appendChild(badge);
         }
 
-        li.appendChild(nameSpan);
-        li.appendChild(badgeSpan);
         menuListEl.appendChild(li);
       });
     });

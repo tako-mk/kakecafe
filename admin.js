@@ -43,30 +43,37 @@ const MENU_CATEGORIES = [
   {
     categoryName: "Food",
     items: [
-      "フライドポテト",
-      "きんぴらパン",
-      "チリドッグ",
-      "ホットドッグ",
-      "ぜんざい",
-      "ミニパフェ",
-      "パンナコッタ",
-      "チョコチップスコーン",
-      "ゼリー",
-      "ポンデケージョ"
+      { name: "きんぴらパン" },
+      {
+        name: "ホットドッグ/チリドッグ",
+        children: [
+          { name: "ホットドッグ" },
+          { name: "チリドッグ" },
+        ]
+      },
+      { name: "フライドポテト" },
+      { name: "ポンデケージョ" },
+      { name: "ぜんざい" },
+      { name: "パンナコッタ" },
+      { name: "ミニパフェ" },
+      { name: "チョコチップスコーン" },
+      { name: "オレンジパウンドケーキ" },
     ]
   },
   {
     categoryName: "Drink",
     items: [
-      "ほうじ茶",
-      "アイスコーヒー",
-      "スイートミルクコーヒー",
-      "モクテル"
+      { name: "ほうじ茶" },
+      { name: "アイスコーヒー" },
+      { name: "スイートミルクコーヒー" },
+      { name: "モクテル" },
     ]
   }
 ];
 // 全てのメニューを取得するための補助配列
-const MENU_ITEMS = MENU_CATEGORIES.flatMap(c => c.items);
+const MENU_ITEMS = MENU_CATEGORIES.flatMap(c =>
+  c.items.flatMap(item => item.children ? item.children.map(ch => ch.name) : [item.name])
+);
 
 // 管理画面部分
 const adminSection = document.getElementById('admin-section');
@@ -134,69 +141,82 @@ async function fetchCurrentData() {
         categoryHeader.textContent = category.categoryName;
         adminMenuListEl.appendChild(categoryHeader);
 
-        category.items.forEach(itemName => {
-          const index = MENU_ITEMS.indexOf(itemName);
-          // ステータスを判定（旧データ互換: true→"available", false→"soldout"）
-          const raw = menuStatus[itemName];
-          let status;
-          if (raw === true || raw === undefined) {
-            status = 'available';
-          } else if (raw === false) {
-            status = 'soldout';
+        category.items.forEach(item => {
+          if (item.children) {
+            // 親ラベル（クリックできないヘッダー的扱い）
+            const parentLabel = document.createElement('div');
+            parentLabel.className = 'admin-parent-label';
+            parentLabel.textContent = item.name;
+            adminMenuListEl.appendChild(parentLabel);
+
+            item.children.forEach(child => {
+              const childName = child.name;
+              const index = MENU_ITEMS.indexOf(childName);
+              const raw = menuStatus[childName];
+              let status = (raw === true || raw === undefined) ? 'available' : (raw === false ? 'soldout' : raw);
+
+              const rowDiv = document.createElement('div');
+              rowDiv.className = 'admin-menu-row admin-menu-row-child';
+
+              const nameLabel = document.createElement('span');
+              nameLabel.className = 'admin-menu-name';
+              nameLabel.textContent = '└ ' + childName;
+
+              const toggleDiv = document.createElement('div');
+              toggleDiv.className = 'toggle-group';
+
+              ['available', 'few', 'soldout'].forEach((val, i) => {
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `menu_${index}`;
+                radio.value = val;
+                if (status === val) radio.checked = true;
+
+                const label = document.createElement('label');
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode([' 提供中', ' あと少し', ' 終了'][i]));
+                toggleDiv.appendChild(label);
+              });
+
+              rowDiv.appendChild(nameLabel);
+              rowDiv.appendChild(toggleDiv);
+              adminMenuListEl.appendChild(rowDiv);
+            });
+
           } else {
-            status = raw; // "available", "few", "soldout"
+            // 既存の通常アイテム処理
+            const itemName = item.name;
+            const index = MENU_ITEMS.indexOf(itemName);
+            const raw = menuStatus[itemName];
+            let status = (raw === true || raw === undefined) ? 'available' : (raw === false ? 'soldout' : raw);
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'admin-menu-row';
+
+            const nameLabel = document.createElement('span');
+            nameLabel.className = 'admin-menu-name';
+            nameLabel.textContent = itemName;
+
+            const toggleDiv = document.createElement('div');
+            toggleDiv.className = 'toggle-group';
+
+            ['available', 'few', 'soldout'].forEach((val, i) => {
+              const radio = document.createElement('input');
+              radio.type = 'radio';
+              radio.name = `menu_${index}`;
+              radio.value = val;
+              if (status === val) radio.checked = true;
+
+              const label = document.createElement('label');
+              label.appendChild(radio);
+              label.appendChild(document.createTextNode([' 提供中', ' あと少し', ' 終了'][i]));
+              toggleDiv.appendChild(label);
+            });
+
+            rowDiv.appendChild(nameLabel);
+            rowDiv.appendChild(toggleDiv);
+            adminMenuListEl.appendChild(rowDiv);
           }
-          
-          const rowDiv = document.createElement('div');
-          rowDiv.className = 'admin-menu-row';
-          
-          const nameLabel = document.createElement('span');
-          nameLabel.className = 'admin-menu-name';
-          nameLabel.textContent = itemName;
-
-          const toggleDiv = document.createElement('div');
-          toggleDiv.className = 'toggle-group';
-          
-          // 提供中ラジオ
-          const radioOk = document.createElement('input');
-          radioOk.type = 'radio';
-          radioOk.name = `menu_${index}`;
-          radioOk.value = 'available';
-          if (status === 'available') radioOk.checked = true;
-          
-          const labelOk = document.createElement('label');
-          labelOk.appendChild(radioOk);
-          labelOk.appendChild(document.createTextNode(' 提供中'));
-
-          // あと少しラジオ
-          const radioFew = document.createElement('input');
-          radioFew.type = 'radio';
-          radioFew.name = `menu_${index}`;
-          radioFew.value = 'few';
-          if (status === 'few') radioFew.checked = true;
-
-          const labelFew = document.createElement('label');
-          labelFew.appendChild(radioFew);
-          labelFew.appendChild(document.createTextNode(' あと少し'));
-
-          // 終了ラジオ
-          const radioNg = document.createElement('input');
-          radioNg.type = 'radio';
-          radioNg.name = `menu_${index}`;
-          radioNg.value = 'soldout';
-          if (status === 'soldout') radioNg.checked = true;
-
-          const labelNg = document.createElement('label');
-          labelNg.appendChild(radioNg);
-          labelNg.appendChild(document.createTextNode(' 終了'));
-
-          toggleDiv.appendChild(labelOk);
-          toggleDiv.appendChild(labelFew);
-          toggleDiv.appendChild(labelNg);
-          
-          rowDiv.appendChild(nameLabel);
-          rowDiv.appendChild(toggleDiv);
-          adminMenuListEl.appendChild(rowDiv);
         });
       });
     }

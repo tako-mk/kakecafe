@@ -117,8 +117,77 @@ header h1 {
 }
 
 .menu-name {
+  font-size: 1.31rem;
   font-weight: bold;
   min-width: 0;
+}
+
+/* メニュー情報エリア（画像 + サブタイトル + メニュー名をまとめる） */
+.menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+/* メニュー画像（角丸四角形で小さめに表示） */
+.menu-img {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--cafe-border);
+}
+
+/* メニューのサブタイトル */
+.menu-subtitle {
+  font-size: 1.0rem;
+  color: #999;
+  font-weight: normal;
+  line-height: 1.3;
+  white-space: pre-line;
+}
+
+/* 子メニューアイテム（ホットドッグ/チリドッグなど） */
+.menu-children {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 8px;
+  border-left: 3px solid var(--cafe-border);
+  width: 100%;
+  box-sizing: border-box;  /* ← padding分を幅に含める */
+}
+
+.menu-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.menu-child-name {
+  white-space: pre-line;
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
+.menu-child.sold-out .menu-child-name {
+  color: #9e9e9e;
+  text-decoration: line-through;
+}
+
+/* 親アイテムはバッジなしで flex-direction: column に */
+.menu-item-parent {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.menu-item-parent .menu-info {
+  width: 100%;
 }
 
 .badge {
@@ -191,6 +260,20 @@ header h1 {
 .admin-menu-name {
   font-size: 1.3rem;
   font-weight: bold;
+}
+
+.admin-parent-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--cafe-accent);
+  padding: 10px 10px 4px;
+  margin-top: 10px;
+}
+
+.admin-menu-row-child {
+  margin-left: 2px;
+  border-left: 3px solid var(--cafe-border);
+  padding-left: 12px;
 }
 
 .toggle-group {
