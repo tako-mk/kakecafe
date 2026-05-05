@@ -135,6 +135,11 @@ header h1 {
   color: #2E7D32;
 }
 
+.badge-few {
+  background-color: #FFF3E0;
+  color: #E65100;
+}
+
 .badge-ng {
   background-color: #FFEBEE;
   color: #C62828;
@@ -196,7 +201,7 @@ header h1 {
 .toggle-group label {
   font-size: 1.1rem !important;
   margin-bottom: 0 !important;
-  padding: 5px 10px !important;
+  padding: 5px 5px !important;
   display: flex;
   align-items: center;
   background: white;

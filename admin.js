@@ -136,8 +136,16 @@ async function fetchCurrentData() {
 
         category.items.forEach(itemName => {
           const index = MENU_ITEMS.indexOf(itemName);
-          // デフォルトは提供中 (true) と解釈
-          const isAvailable = menuStatus[itemName] !== false;
+          // ステータスを判定（旧データ互換: true→"available", false→"soldout"）
+          const raw = menuStatus[itemName];
+          let status;
+          if (raw === true || raw === undefined) {
+            status = 'available';
+          } else if (raw === false) {
+            status = 'soldout';
+          } else {
+            status = raw; // "available", "few", "soldout"
+          }
           
           const rowDiv = document.createElement('div');
           rowDiv.className = 'admin-menu-row';
@@ -153,25 +161,37 @@ async function fetchCurrentData() {
           const radioOk = document.createElement('input');
           radioOk.type = 'radio';
           radioOk.name = `menu_${index}`;
-          radioOk.value = 'true';
-          if (isAvailable) radioOk.checked = true;
+          radioOk.value = 'available';
+          if (status === 'available') radioOk.checked = true;
           
           const labelOk = document.createElement('label');
           labelOk.appendChild(radioOk);
           labelOk.appendChild(document.createTextNode(' 提供中'));
 
+          // あと少しラジオ
+          const radioFew = document.createElement('input');
+          radioFew.type = 'radio';
+          radioFew.name = `menu_${index}`;
+          radioFew.value = 'few';
+          if (status === 'few') radioFew.checked = true;
+
+          const labelFew = document.createElement('label');
+          labelFew.appendChild(radioFew);
+          labelFew.appendChild(document.createTextNode(' あと少し'));
+
           // 終了ラジオ
           const radioNg = document.createElement('input');
           radioNg.type = 'radio';
           radioNg.name = `menu_${index}`;
-          radioNg.value = 'false';
-          if (!isAvailable) radioNg.checked = true;
+          radioNg.value = 'soldout';
+          if (status === 'soldout') radioNg.checked = true;
 
           const labelNg = document.createElement('label');
           labelNg.appendChild(radioNg);
           labelNg.appendChild(document.createTextNode(' 終了'));
 
           toggleDiv.appendChild(labelOk);
+          toggleDiv.appendChild(labelFew);
           toggleDiv.appendChild(labelNg);
           
           rowDiv.appendChild(nameLabel);
@@ -207,13 +227,13 @@ async function saveData() {
   const currentMenuStatus = {};
   MENU_ITEMS.forEach((itemName, index) => {
     const radios = document.getElementsByName(`menu_${index}`);
-    let isAvailable = true;
+    let status = 'available';
     for (const radio of radios) {
       if (radio.checked) {
-        isAvailable = (radio.value === 'true');
+        status = radio.value; // "available", "few", "soldout"
       }
     }
-    currentMenuStatus[itemName] = isAvailable;
+    currentMenuStatus[itemName] = status;
   });
 
   const now = Date.now();

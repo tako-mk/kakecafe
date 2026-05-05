@@ -134,19 +134,41 @@ function renderStatus(data) {
       menuListEl.appendChild(categoryHeader);
 
       category.items.forEach(itemName => {
-        // デフォルトは提供中 (true) と解釈する
-        const isAvailable = menuStatus[itemName] !== false;
+        // ステータスを判定（旧データ互換: true→"available", false→"soldout"）
+        const raw = menuStatus[itemName];
+        let status;
+        if (raw === true || raw === undefined) {
+          status = 'available';
+        } else if (raw === false) {
+          status = 'soldout';
+        } else {
+          status = raw; // "available", "few", "soldout"
+        }
         
         const li = document.createElement('li');
-        li.className = isAvailable ? 'menu-item available' : 'menu-item sold-out';
+        if (status === 'soldout') {
+          li.className = 'menu-item sold-out';
+        } else if (status === 'few') {
+          li.className = 'menu-item few-left';
+        } else {
+          li.className = 'menu-item available';
+        }
         
         const nameSpan = document.createElement('span');
         nameSpan.className = 'menu-name';
         nameSpan.textContent = itemName;
 
         const badgeSpan = document.createElement('span');
-        badgeSpan.className = isAvailable ? 'badge badge-ok' : 'badge badge-ng';
-        badgeSpan.textContent = isAvailable ? '提供中' : '終了';
+        if (status === 'soldout') {
+          badgeSpan.className = 'badge badge-ng';
+          badgeSpan.textContent = '終了';
+        } else if (status === 'few') {
+          badgeSpan.className = 'badge badge-few';
+          badgeSpan.textContent = 'あと少し';
+        } else {
+          badgeSpan.className = 'badge badge-ok';
+          badgeSpan.textContent = '提供中';
+        }
 
         li.appendChild(nameSpan);
         li.appendChild(badgeSpan);
