@@ -81,16 +81,31 @@ const MENU_CATEGORIES = [
     ]
   },
   {
-    categoryName: "Drink",
+    categoryName: "Drink (BAR RYOJI)",
     items: [
       {
-        name: "Bar Ryoji",
+        name: "COFEE・TEA",
         children: [
-          { name: "ほうじ茶" },
           { name: "ホットコーヒー" },
           { name: "アイスコーヒー" },
-          { name: "スイート\nミルクコーヒー" },
-          { name: "モクテル" }
+          { name: "ほうじ茶" },
+          { name: "スイート\nミルクコーヒー" }
+        ]
+      },
+      {
+        name: "MOCKTAIL",
+        children: [
+          { name: "シャーリーテンプル" },
+          { name: "アリゾナサンセット" },
+          { name: "シンデレラ" },
+          { name: "スパイシーコーラ" }
+        ]
+      },
+      {
+        name: "SOFTDRINK",
+        children: [
+          { name: "メロンソーダ\n（フロート可）" },
+          { name: "レモネードタカタ" }
         ]
       }
     ]
