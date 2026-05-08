@@ -56,6 +56,11 @@ const MENU_CATEGORIES = [
         name: "揚げ物屋 MANABU",
         image: "assets/Agemonoya_manabu.jpg",
         subtitle: "気分もアゲアゲ？",
+        children: [
+          { name: "フライドポテト" },
+          { name: "チーズいももち" },
+          { name: "チュロス" }
+        ]
       },
       {
         name: "ポンデケージョだじょ。",

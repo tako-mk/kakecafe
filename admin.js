@@ -55,6 +55,11 @@ const MENU_CATEGORIES = [
       },
       {
         name: "揚げ物屋 MANABU",
+        children: [
+          { name: "フライドポテト" },
+          { name: "チーズいももち" },
+          { name: "チュロス" }
+        ]
       },
       {
         name: "ポンデケージョだじょ。",

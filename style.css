@@ -413,6 +413,36 @@ header h1 {
   font-size: 1.3rem;
 }
 
+/* メニュー画像セクション */
+.menu-images-section h2 {
+  text-align: center;
+}
+
+.menu-images {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.menu-image-wrapper {
+  text-align: center;
+}
+
+.menu-image-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--cafe-accent);
+  margin-bottom: 8px;
+}
+
+.menu-image {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* フッター */
 .site-footer {
   text-align: center;
