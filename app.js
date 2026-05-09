@@ -198,6 +198,8 @@ function renderStatus(data) {
     congestionStatusEl.classList.add('status-normal');
   } else if (data.congestion === '満席') {
     congestionStatusEl.classList.add('status-full');
+  } else if (data.congestion === '準備中') {
+    congestionStatusEl.classList.add('status-preparing');
   }
 
   // メニュー表の表示 (menuStatusがない古いデータの場合は、すべて提供中とみなす)
