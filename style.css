@@ -9,6 +9,7 @@
   --status-empty: #4CAF50;
   --status-normal: #FF9800;
   --status-full: #F44336;
+  --status-preparing: #FF9800;
 }
 
 body {
@@ -93,6 +94,10 @@ header h1 {
 
 .status-full {
   color: var(--status-full);
+}
+
+.status-preparing {
+  color: var(--status-preparing);
 }
 
 /* メニューリスト */
