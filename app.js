@@ -30,8 +30,6 @@ const reloadBtn = document.getElementById('reload-btn');
 
 // ==========================================
 // メニューの定義
-// 各アイテムは { name, image(任意), subtitle(任意) } のオブジェクト
-// subtitle: 後から編集する場合はコメントを外して文字列を設定してください
 // ==========================================
 const MENU_CATEGORIES = [
   {
@@ -167,7 +165,7 @@ async function fetchAndDisplayData() {
       };
     }
 
-    // すぐに表示が変わると更新されたか分かりにくいため、少しだけ待機（UXのため）
+    // すぐに表示が変わると更新されたか分かりにくいため、少しだけ待機
     setTimeout(() => {
       renderStatus(data);
       reloadBtn.disabled = false;
@@ -181,7 +179,7 @@ async function fetchAndDisplayData() {
 }
 
 function renderStatus(data) {
-  // 日時のフォーマット (例: "14時30分現在")
+  // 日時のフォーマット ("○○時○○分現在")
   const date = new Date(data.updatedAt);
   const hours = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -202,7 +200,7 @@ function renderStatus(data) {
     congestionStatusEl.classList.add('status-preparing');
   }
 
-  // メニュー表の表示 (menuStatusがない古いデータの場合は、すべて提供中とみなす)
+  // メニュー表の表示
   const menuStatus = data.menuStatus || {};
   const menuListEl = document.getElementById('menu-list');
   if (menuListEl) {
@@ -215,7 +213,6 @@ function renderStatus(data) {
       categoryHeader.textContent = category.categoryName;
       menuListEl.appendChild(categoryHeader);
 
-      // renderStatus 内の category.items.forEach を以下に置き換え
       category.items.forEach(item => {
         const li = document.createElement('li');
         li.className = 'menu-item menu-item-parent';

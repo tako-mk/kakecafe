@@ -144,7 +144,7 @@ function attemptLogin() {
 
 loginBtn.addEventListener('click', attemptLogin);
 
-// Enterキーでもログインできるようにする
+// Enterキーでもログイン可能に
 passwordInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     attemptLogin();
@@ -229,7 +229,6 @@ async function fetchCurrentData() {
             });
 
           } else {
-            // 既存の通常アイテム処理
             const itemName = item.name;
             const index = MENU_ITEMS.indexOf(itemName);
             const raw = menuStatus[itemName];
@@ -316,7 +315,7 @@ async function saveData() {
 
     // 保存完了の表示
     saveMessage.textContent = '更新が完了しました！お客様ページに反映されました。';
-    saveMessage.style.color = 'var(--status-empty)'; // 緑色
+    saveMessage.style.color = 'var(--status-empty)'; // 緑
     
     setTimeout(() => {
       saveMessage.textContent = '';
@@ -325,7 +324,7 @@ async function saveData() {
   } catch (error) {
     console.error("保存エラー:", error);
     saveMessage.textContent = 'エラーが発生しました。もう一度お試しください。';
-    saveMessage.style.color = 'var(--status-full)'; // 赤色
+    saveMessage.style.color = 'var(--status-full)'; // 赤
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = 'この内容で更新する';
