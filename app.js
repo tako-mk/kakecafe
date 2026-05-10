@@ -1,171 +1,30 @@
 // app.js
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
-// ----------------------------------------------------
-// 【Firebase】
-// ----------------------------------------------------
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAHsN_Yxi13_06QVCnU-MSabdM9dFzJlO4",
-  authDomain: "kakecafe-25695.firebaseapp.com",
-  projectId: "kakecafe-25695",
-  storageBucket: "kakecafe-25695.firebasestorage.app",
-  messagingSenderId: "761704680546",
-  appId: "1:761704680546:web:5266850af1bafb7ea1953b",
-  measurementId: "G-HLSN74RB33"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { db } from './firebase.js';
+import { MENU_CATEGORIES, resolveStatus } from './menu.js';
 
 // ==========================================
 // 画面要素の取得
 // ==========================================
-const updateTimeEl = document.getElementById('update-time');
+const updateTimeEl      = document.getElementById('update-time');
 const congestionStatusEl = document.getElementById('congestion-status');
-const soldoutListEl = document.getElementById('soldout-list');
-const reloadBtn = document.getElementById('reload-btn');
-
-// ==========================================
-// メニューの定義
-// ==========================================
-const MENU_CATEGORIES = [
-  {
-    categoryName: "Food",
-    items: [
-      {
-        name: "頑固おやじのきんぴらパン",
-        image: "assets/Kimpira_bread_of_gankooyaji.jpg",
-        subtitle: "美味しいなんてお世辞はいらない\n食べて笑顔になればいい",
-        takeout: true
-      },
-      {
-        name: "ホットドッグ/チリドッグ",
-        image: "assets/Hotdog_chilidog.jpg",
-        subtitle: "ナモスバーガーの再現度99%\nあなたはHot OR Chili？",
-        children: [
-          { name: "ホットドッグ" },
-          { name: "チリドッグ" },
-        ]
-      },
-      {
-        name: "揚げ物屋 MANABU",
-        image: "assets/Agemonoya_manabu.jpg",
-        subtitle: "気分もアゲアゲ？",
-        children: [
-          { name: "フライドポテト" },
-          { name: "チーズいももち" },
-          { name: "チュロス" }
-        ]
-      },
-      {
-        name: "ポンデケージョだじょ。",
-        image: "assets/Pão_de_Queijo_dajo.jpg",
-        subtitle: "もちもちチーズパン。\nあすかの愛はデッケージョ。",
-        takeout: true
-      },
-      {
-        name: "かおりんのぜんざい",
-        image: "assets/Zenzai_of_kaorin.jpg",
-        subtitle: "潜在能力全開！\nおいしさぜんだいみもん",
-        children: [
-          { name: "温（餅入り）" },
-          { name: "冷（白玉入り）" }
-        ]
-      },
-      {
-        name: "ゆんゆんのパンナコッタ",
-        image: "assets/Panna_cotta_of_yunyun.jpg",
-        subtitle: "ナンテコッタ！？\nお口の中で奏でるおいしさ♪",
-        takeout: true
-      },
-      {
-        name: "ミニ・パルフェ",
-        image: "assets/Mini_parfait.jpg",
-        subtitle: "今日の気分は何味？\nカスタム自由 シェフMAKI監修",
-      },
-      {
-        name: "チョコチップスコーン",
-        image: "assets/Chocolate_chip_scone.jpg",
-        subtitle: "ヒロポンのやさしさと\nチョコたっぷり 甘さは控えめ",
-        takeout: true
-      },
-      {
-        name: "オレンジパウンドケーキ",
-        image: "assets/Orange_pound_cake.jpg",
-        subtitle: "ふわっと香ってしっとり消える\n陽だまりあやちゃんの",
-        takeout: true
-      },
-    ]
-  },
-  {
-    categoryName: "Drink (BAR RYOJI)",
-    items: [
-      {
-        name: "COFEE・TEA",
-        image: "assets/Bar_ryoji.jpg",
-        subtitle: "やさしい時間を、一杯。",
-        children: [
-          { name: "ホットコーヒー" },
-          { name: "アイスコーヒー" },
-          { name: "ほうじ茶" },
-          { name: "スイート\nミルクコーヒー" }
-        ]
-      },
-      {
-        name: "MOCKTAIL",
-        children: [
-          { name: "シャーリーテンプル" },
-          { name: "アリゾナサンセット" },
-          { name: "シンデレラ" },
-          { name: "スパイシーコーラ" }
-        ]
-      },
-      {
-        name: "SOFTDRINK",
-        children: [
-          { name: "メロンソーダ\n（フロート可）" },
-          { name: "レモネードタカタ" }
-        ]
-      }
-    ]
-  }
-];
-// 全てのメニューを取得するための補助配列
-const MENU_ITEMS = MENU_CATEGORIES.flatMap(c =>
-  c.items.flatMap(item => item.children ? item.children.map(ch => ch.name) : [item.name])
-);
+const reloadBtn         = document.getElementById('reload-btn');
 
 // ==========================================
 // データの取得と表示
 // ==========================================
 async function fetchAndDisplayData() {
   updateTimeEl.textContent = '読み込み中...';
-  // ボタンを一時的に無効化
   reloadBtn.disabled = true;
-  
+
   try {
-    // ----------------------------------------------------
-    // 【Firebaseからデータを取得する】
-    // ----------------------------------------------------
-    const docRef = doc(db, "cafe_status", "current");
-    const docSnap = await getDoc(docRef);
-    let data;
+    const docSnap = await getDoc(doc(db, "cafe_status", "current"));
+    const data = docSnap.exists()
+      ? docSnap.data()
+      : { congestion: '空席あり', menuStatus: {}, updatedAt: Date.now() };
 
-    if (docSnap.exists()) {
-      data = docSnap.data();
-    } else {
-      // ドキュメントがまだ存在しない場合の初期データ
-      data = {
-        congestion: '空席あり',
-        menuStatus: {},
-        updatedAt: Date.now()
-      };
-    }
-
-    // すぐに表示が変わると更新されたか分かりにくいため、少しだけ待機
+    // すぐに変わると更新が分かりにくいため少し待機
     setTimeout(() => {
       renderStatus(data);
       reloadBtn.disabled = false;
@@ -179,152 +38,119 @@ async function fetchAndDisplayData() {
 }
 
 function renderStatus(data) {
-  // 日時のフォーマット ("○○時○○分現在")
+  // 時刻表示
   const date = new Date(data.updatedAt);
-  const hours = date.getHours();
+  const hours   = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, '0');
   updateTimeEl.textContent = `${hours}時${minutes}分現在`;
 
-  // 混雑状況の表示
+  // 混雑状況
   congestionStatusEl.textContent = data.congestion;
-  
-  // 色の変更
-  congestionStatusEl.className = 'status-display'; // 一度リセット
-  if (data.congestion === '空席あり') {
-    congestionStatusEl.classList.add('status-empty');
-  } else if (data.congestion === 'やや混雑') {
-    congestionStatusEl.classList.add('status-normal');
-  } else if (data.congestion === '満席') {
-    congestionStatusEl.classList.add('status-full');
-  } else if (data.congestion === '準備中') {
-    congestionStatusEl.classList.add('status-preparing');
-  }
+  congestionStatusEl.className = 'status-display';
+  const congestionClass = {
+    '空席あり': 'status-empty',
+    'やや混雑': 'status-normal',
+    '満席'    : 'status-full',
+    '準備中'  : 'status-preparing'
+  }[data.congestion];
+  if (congestionClass) congestionStatusEl.classList.add(congestionClass);
 
-  // メニュー表の表示
-  const menuStatus = data.menuStatus || {};
-  const menuListEl = document.getElementById('menu-list');
-  if (menuListEl) {
-    menuListEl.innerHTML = '';
+  // メニュー一覧
+  const menuStatus  = data.menuStatus || {};
+  const menuListEl  = document.getElementById('menu-list');
+  if (!menuListEl) return;
+  menuListEl.innerHTML = '';
 
-    MENU_CATEGORIES.forEach(category => {
-      // カテゴリ見出し
-      const categoryHeader = document.createElement('li');
-      categoryHeader.className = 'menu-category-header';
-      categoryHeader.textContent = category.categoryName;
-      menuListEl.appendChild(categoryHeader);
+  MENU_CATEGORIES.forEach(category => {
+    const categoryHeader = document.createElement('li');
+    categoryHeader.className = 'menu-category-header';
+    categoryHeader.textContent = category.categoryName;
+    menuListEl.appendChild(categoryHeader);
 
-      category.items.forEach(item => {
-        const li = document.createElement('li');
+    category.items.forEach(item => {
+      const li      = document.createElement('li');
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'menu-info';
+
+      if (item.image) {
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.name;
+        img.className = 'menu-img';
+        infoDiv.appendChild(img);
+      }
+
+      if (item.subtitle) {
+        const subtitleSpan = document.createElement('span');
+        subtitleSpan.className = 'menu-subtitle';
+        subtitleSpan.textContent = item.subtitle;
+        infoDiv.appendChild(subtitleSpan);
+      }
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'menu-name';
+      nameSpan.textContent = item.name;
+      infoDiv.appendChild(nameSpan);
+
+      if (item.takeout) {
+        const takeoutSpan = document.createElement('span');
+        takeoutSpan.className = 'menu-takeout';
+        takeoutSpan.textContent = '- テイクアウト可';
+        infoDiv.appendChild(takeoutSpan);
+      }
+
+      if (item.children) {
         li.className = 'menu-item menu-item-parent';
+        const childrenDiv = document.createElement('div');
+        childrenDiv.className = 'menu-children';
 
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'menu-info';
+        item.children.forEach(child => {
+          const status    = resolveStatus(menuStatus[child.name]);
+          const childSpan = document.createElement('div');
+          childSpan.className = `menu-child${status === 'soldout' ? ' sold-out' : ''}`;
 
-        if (item.image) {
-          const img = document.createElement('img');
-          img.src = item.image;
-          img.alt = item.name;
-          img.className = 'menu-img';
-          infoDiv.appendChild(img);
-        }
+          const childName = document.createElement('span');
+          childName.className = 'menu-child-name';
+          childName.textContent = child.name;
 
-        if (item.subtitle) {
-          const subtitleSpan = document.createElement('span');
-          subtitleSpan.className = 'menu-subtitle';
-          subtitleSpan.textContent = item.subtitle;
-          infoDiv.appendChild(subtitleSpan);
-        }
+          childSpan.appendChild(childName);
+          childSpan.appendChild(makeBadge(status));
+          childrenDiv.appendChild(childSpan);
+        });
 
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'menu-name';
-        nameSpan.textContent = item.name;
-        infoDiv.appendChild(nameSpan);
+        infoDiv.appendChild(childrenDiv);
+        li.appendChild(infoDiv);
 
-        if (item.takeout) {
-          const takeoutSpan = document.createElement('span');
-          takeoutSpan.className = 'menu-takeout';
-          takeoutSpan.textContent = '- テイクアウト可';
-          infoDiv.appendChild(takeoutSpan);
-        }
+      } else {
+        const status = resolveStatus(menuStatus[item.name]);
+        li.className = `menu-item ${{ soldout: 'sold-out', few: 'few-left', available: 'available' }[status]}`;
+        li.appendChild(infoDiv);
+        li.appendChild(makeBadge(status));
+      }
 
-        if (item.children) {
-          // 子アイテムのバッジを横並びで表示
-          const childrenDiv = document.createElement('div');
-          childrenDiv.className = 'menu-children';
-
-          item.children.forEach(child => {
-            const raw = menuStatus[child.name];
-            let status;
-            if (raw === true || raw === undefined) status = 'available';
-            else if (raw === false) status = 'soldout';
-            else status = raw;
-
-            const childSpan = document.createElement('div');
-            childSpan.className = `menu-child${status === 'soldout' ? ' sold-out' : ''}`;
-
-            const childName = document.createElement('span');
-            childName.className = 'menu-child-name';
-            childName.textContent = child.name;
-
-            const badge = document.createElement('span');
-            if (status === 'soldout') {
-              badge.className = 'badge badge-ng';
-              badge.textContent = '終了';
-            } else if (status === 'few') {
-              badge.className = 'badge badge-few';
-              badge.textContent = 'あと少し';
-            } else {
-              badge.className = 'badge badge-ok';
-              badge.textContent = '提供中';
-            }
-
-            childSpan.appendChild(childName);
-            childSpan.appendChild(badge);
-            childrenDiv.appendChild(childSpan);
-          });
-
-          infoDiv.appendChild(childrenDiv);
-          li.appendChild(infoDiv);
-        } else {
-          // 通常アイテム
-          const raw = menuStatus[item.name];
-          let status;
-          if (raw === true || raw === undefined) status = 'available';
-          else if (raw === false) status = 'soldout';
-          else status = raw;
-
-          if (status === 'soldout') li.className = 'menu-item sold-out';
-          else if (status === 'few') li.className = 'menu-item few-left';
-          else li.className = 'menu-item available';
-
-          const badge = document.createElement('span');
-          if (status === 'soldout') {
-            badge.className = 'badge badge-ng';
-            badge.textContent = '終了';
-          } else if (status === 'few') {
-            badge.className = 'badge badge-few';
-            badge.textContent = 'あと少し';
-          } else {
-            badge.className = 'badge badge-ok';
-            badge.textContent = '提供中';
-          }
-
-          li.appendChild(infoDiv);
-          li.appendChild(badge);
-        }
-
-        menuListEl.appendChild(li);
-      });
+      menuListEl.appendChild(li);
     });
-  }
+  });
+}
+
+/** ステータスバッジ要素を生成 */
+function makeBadge(status) {
+  const badge = document.createElement('span');
+  const MAP = {
+    soldout  : ['badge badge-ng',  '終了'],
+    few      : ['badge badge-few', 'あと少し'],
+    available: ['badge badge-ok',  '提供中']
+  };
+  const [cls, text] = MAP[status] ?? MAP.available;
+  badge.className = cls;
+  badge.textContent = text;
+  return badge;
 }
 
 // ==========================================
 // イベントリスナー
 // ==========================================
-reloadBtn.addEventListener('click', () => {
-  fetchAndDisplayData();
-});
+reloadBtn.addEventListener('click', fetchAndDisplayData);
 
 // 初回読み込み
 fetchAndDisplayData();

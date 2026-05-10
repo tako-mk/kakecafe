@@ -1,24 +1,8 @@
 // admin.js
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
-// ----------------------------------------------------
-// 【Firebase】
-// ----------------------------------------------------
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAHsN_Yxi13_06QVCnU-MSabdM9dFzJlO4",
-  authDomain: "kakecafe-25695.firebaseapp.com",
-  projectId: "kakecafe-25695",
-  storageBucket: "kakecafe-25695.firebasestorage.app",
-  messagingSenderId: "761704680546",
-  appId: "1:761704680546:web:5266850af1bafb7ea1953b",
-  measurementId: "G-HLSN74RB33"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { db } from './firebase.js';
+import { MENU_CATEGORIES, MENU_ITEMS, resolveStatus } from './menu.js';
 
 // ==========================================
 // 合言葉の設定
@@ -28,111 +12,24 @@ const SECRET_PASSWORD = "1111";
 // ==========================================
 // 画面要素の取得
 // ==========================================
-// ログイン部分
-const loginSection = document.getElementById('login-section');
-const passwordInput = document.getElementById('password-input');
-const loginBtn = document.getElementById('login-btn');
-const loginError = document.getElementById('login-error');
-
-const saveMessage = document.getElementById('save-message');
-
-// ==========================================
-// メニューの定義
-// ==========================================
-const MENU_CATEGORIES = [
-  {
-    categoryName: "Food",
-    items: [
-      {
-        name: "頑固おやじのきんぴらパン",
-      },
-      {
-        name: "ホットドッグ/チリドッグ",
-        children: [
-          { name: "ホットドッグ" },
-          { name: "チリドッグ" },
-        ]
-      },
-      {
-        name: "揚げ物屋 MANABU",
-        children: [
-          { name: "フライドポテト" },
-          { name: "チーズいももち" },
-          { name: "チュロス" }
-        ]
-      },
-      {
-        name: "ポンデケージョだじょ。",
-      },
-      {
-        name: "かおりんのぜんざい",
-        children: [
-          { name: "温（餅入り）" },
-          { name: "冷（白玉入り）" }
-        ]
-      },
-      {
-        name: "ゆんゆんのパンナコッタ",
-      },
-      {
-        name: "ミニ・パルフェ",
-      },
-      {
-        name: "チョコチップスコーン",
-      },
-      {
-        name: "オレンジパウンドケーキ",
-      },
-    ]
-  },
-  {
-    categoryName: "Drink (BAR RYOJI)",
-    items: [
-      {
-        name: "COFEE・TEA",
-        children: [
-          { name: "ホットコーヒー" },
-          { name: "アイスコーヒー" },
-          { name: "ほうじ茶" },
-          { name: "スイート\nミルクコーヒー" }
-        ]
-      },
-      {
-        name: "MOCKTAIL",
-        children: [
-          { name: "シャーリーテンプル" },
-          { name: "アリゾナサンセット" },
-          { name: "シンデレラ" },
-          { name: "スパイシーコーラ" }
-        ]
-      },
-      {
-        name: "SOFTDRINK",
-        children: [
-          { name: "メロンソーダ\n（フロート可）" },
-          { name: "レモネードタカタ" }
-        ]
-      }
-    ]
-  }
-];
-// 全てのメニューを取得するための補助配列
-const MENU_ITEMS = MENU_CATEGORIES.flatMap(c =>
-  c.items.flatMap(item => item.children ? item.children.map(ch => ch.name) : [item.name])
-);
-
-// 管理画面部分
-const adminSection = document.getElementById('admin-section');
+const loginSection    = document.getElementById('login-section');
+const passwordInput   = document.getElementById('password-input');
+const loginBtn        = document.getElementById('login-btn');
+const loginError      = document.getElementById('login-error');
+const adminSection    = document.getElementById('admin-section');
 const congestionRadios = document.getElementsByName('congestion');
 const adminMenuListEl = document.getElementById('admin-menu-list');
-const saveBtn = document.getElementById('save-btn');
+const saveBtn         = document.getElementById('save-btn');
+const saveMessage     = document.getElementById('save-message');
 
 // ==========================================
 // ログイン処理
 // ==========================================
 function attemptLogin() {
+  // 全角数字 → 半角に変換してから比較
   const userInput = passwordInput.value
-    .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)); // 全角数字→半角に変換
+    .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+
   if (userInput === SECRET_PASSWORD) {
     loginSection.classList.add('hidden');
     adminSection.classList.remove('hidden');
@@ -143,131 +40,97 @@ function attemptLogin() {
 }
 
 loginBtn.addEventListener('click', attemptLogin);
-
-// Enterキーでもログイン可能に
-passwordInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    attemptLogin();
-  }
-});
+passwordInput.addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
 
 // ==========================================
-// データの取得 (フォームの初期値に設定)
+// データの取得（フォーム初期値に設定）
 // ==========================================
 async function fetchCurrentData() {
   try {
-    // 【Firebaseから取得】
-    const docRef = doc(db, "cafe_status", "current");
-    const docSnap = await getDoc(docRef);
-    let data;
-    if (docSnap.exists()) {
-      data = docSnap.data();
-    }
-    
-    if (data && data.congestion) {
-      // 混雑状況のラジオボタンを選択
+    const docSnap = await getDoc(doc(db, "cafe_status", "current"));
+    const data = docSnap.exists() ? docSnap.data() : null;
+
+    // 混雑状況ラジオボタンの復元
+    if (data?.congestion) {
       for (const radio of congestionRadios) {
-        if (radio.value === data.congestion) {
-          radio.checked = true;
-          break;
-        }
+        if (radio.value === data.congestion) { radio.checked = true; break; }
       }
     }
 
-    // メニューごとの切り替えボタンを生成
-    const menuStatus = data ? (data.menuStatus || {}) : {};
-    if (adminMenuListEl) {
-      adminMenuListEl.innerHTML = '';
+    // メニュー切り替えUIの生成
+    const menuStatus = data?.menuStatus ?? {};
+    if (!adminMenuListEl) return;
+    adminMenuListEl.innerHTML = '';
 
-      MENU_CATEGORIES.forEach(category => {
-        // カテゴリヘッダー
-        const categoryHeader = document.createElement('div');
-        categoryHeader.className = 'admin-category-header';
-        categoryHeader.textContent = category.categoryName;
-        adminMenuListEl.appendChild(categoryHeader);
+    MENU_CATEGORIES.forEach(category => {
+      const categoryHeader = document.createElement('div');
+      categoryHeader.className = 'admin-category-header';
+      categoryHeader.textContent = category.categoryName;
+      adminMenuListEl.appendChild(categoryHeader);
 
-        category.items.forEach(item => {
-          if (item.children) {
-            // 親ラベル（クリックできないヘッダー的扱い）
-            const parentLabel = document.createElement('div');
-            parentLabel.className = 'admin-parent-label';
-            parentLabel.textContent = item.name;
-            adminMenuListEl.appendChild(parentLabel);
+      category.items.forEach(item => {
+        if (item.children) {
+          const parentLabel = document.createElement('div');
+          parentLabel.className = 'admin-parent-label';
+          parentLabel.textContent = item.name;
+          adminMenuListEl.appendChild(parentLabel);
 
-            item.children.forEach(child => {
-              const childName = child.name;
-              const index = MENU_ITEMS.indexOf(childName);
-              const raw = menuStatus[childName];
-              let status = (raw === true || raw === undefined) ? 'available' : (raw === false ? 'soldout' : raw);
-
-              const rowDiv = document.createElement('div');
-              rowDiv.className = 'admin-menu-row admin-menu-row-child';
-
-              const nameLabel = document.createElement('span');
-              nameLabel.className = 'admin-menu-name';
-              nameLabel.textContent = '└ ' + childName;
-
-              const toggleDiv = document.createElement('div');
-              toggleDiv.className = 'toggle-group';
-
-              ['available', 'few', 'soldout'].forEach((val, i) => {
-                const radio = document.createElement('input');
-                radio.type = 'radio';
-                radio.name = `menu_${index}`;
-                radio.value = val;
-                if (status === val) radio.checked = true;
-
-                const label = document.createElement('label');
-                label.appendChild(radio);
-                label.appendChild(document.createTextNode([' 提供中', ' あと少し', ' 終了'][i]));
-                toggleDiv.appendChild(label);
-              });
-
-              rowDiv.appendChild(nameLabel);
-              rowDiv.appendChild(toggleDiv);
-              adminMenuListEl.appendChild(rowDiv);
-            });
-
-          } else {
-            const itemName = item.name;
-            const index = MENU_ITEMS.indexOf(itemName);
-            const raw = menuStatus[itemName];
-            let status = (raw === true || raw === undefined) ? 'available' : (raw === false ? 'soldout' : raw);
-
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'admin-menu-row';
-
-            const nameLabel = document.createElement('span');
-            nameLabel.className = 'admin-menu-name';
-            nameLabel.textContent = itemName;
-
-            const toggleDiv = document.createElement('div');
-            toggleDiv.className = 'toggle-group';
-
-            ['available', 'few', 'soldout'].forEach((val, i) => {
-              const radio = document.createElement('input');
-              radio.type = 'radio';
-              radio.name = `menu_${index}`;
-              radio.value = val;
-              if (status === val) radio.checked = true;
-
-              const label = document.createElement('label');
-              label.appendChild(radio);
-              label.appendChild(document.createTextNode([' 提供中', ' あと少し', ' 終了'][i]));
-              toggleDiv.appendChild(label);
-            });
-
-            rowDiv.appendChild(nameLabel);
-            rowDiv.appendChild(toggleDiv);
-            adminMenuListEl.appendChild(rowDiv);
-          }
-        });
+          item.children.forEach(child => {
+            adminMenuListEl.appendChild(
+              makeMenuRow(child.name, menuStatus, '└ ')
+            );
+          });
+        } else {
+          adminMenuListEl.appendChild(makeMenuRow(item.name, menuStatus));
+        }
       });
-    }
+    });
 
   } catch (error) {
     console.error("データの読み込みに失敗しました", error);
   }
+}
+
+/**
+ * メニュー行（ラジオボタン付き）を生成して返す
+ * @param {string} itemName
+ * @param {Object} menuStatus
+ * @param {string} [prefix='']  子アイテムのインデント文字
+ */
+function makeMenuRow(itemName, menuStatus, prefix = '') {
+  const index  = MENU_ITEMS.indexOf(itemName);
+  const status = resolveStatus(menuStatus[itemName]);
+
+  const rowDiv   = document.createElement('div');
+  rowDiv.className = prefix ? 'admin-menu-row admin-menu-row-child' : 'admin-menu-row';
+
+  const nameLabel = document.createElement('span');
+  nameLabel.className = 'admin-menu-name';
+  nameLabel.textContent = prefix + itemName;
+
+  const toggleDiv = document.createElement('div');
+  toggleDiv.className = 'toggle-group';
+
+  [
+    ['available', ' 提供中'],
+    ['few',       ' あと少し'],
+    ['soldout',   ' 終了']
+  ].forEach(([val, label]) => {
+    const radio = document.createElement('input');
+    radio.type  = 'radio';
+    radio.name  = `menu_${index}`;
+    radio.value = val;
+    if (status === val) radio.checked = true;
+
+    const labelEl = document.createElement('label');
+    labelEl.appendChild(radio);
+    labelEl.appendChild(document.createTextNode(label));
+    toggleDiv.appendChild(labelEl);
+  });
+
+  rowDiv.appendChild(nameLabel);
+  rowDiv.appendChild(toggleDiv);
+  return rowDiv;
 }
 
 // ==========================================
@@ -277,54 +140,37 @@ async function saveData() {
   saveBtn.disabled = true;
   saveBtn.textContent = '保存中...';
   saveMessage.textContent = '';
-  
-  // 選択された混雑状況を取得
+
+  // 混雑状況
   let selectedCongestion = '空席あり';
   for (const radio of congestionRadios) {
-    if (radio.checked) {
-      selectedCongestion = radio.value;
-      break;
-    }
+    if (radio.checked) { selectedCongestion = radio.value; break; }
   }
-  
-  // メニューの状況を収集
+
+  // メニュー状況
   const currentMenuStatus = {};
   MENU_ITEMS.forEach((itemName, index) => {
     const radios = document.getElementsByName(`menu_${index}`);
-    let status = 'available';
     for (const radio of radios) {
-      if (radio.checked) {
-        status = radio.value; // "available", "few", "soldout"
-      }
+      if (radio.checked) { currentMenuStatus[itemName] = radio.value; break; }
     }
-    currentMenuStatus[itemName] = status;
   });
 
-  const now = Date.now();
-  
-  const newData = {
-    congestion: selectedCongestion,
-    menuStatus: currentMenuStatus,
-    updatedAt: now
-  };
-
   try {
-    // 【Firebaseへ保存】
-    const docRef = doc(db, "cafe_status", "current");
-    await setDoc(docRef, newData);
+    await setDoc(doc(db, "cafe_status", "current"), {
+      congestion: selectedCongestion,
+      menuStatus: currentMenuStatus,
+      updatedAt: Date.now()
+    });
 
-    // 保存完了の表示
     saveMessage.textContent = '更新が完了しました！お客様ページに反映されました。';
-    saveMessage.style.color = 'var(--status-empty)'; // 緑
-    
-    setTimeout(() => {
-      saveMessage.textContent = '';
-    }, 5000);
+    saveMessage.style.color = 'var(--status-empty)';
+    setTimeout(() => { saveMessage.textContent = ''; }, 5000);
 
   } catch (error) {
     console.error("保存エラー:", error);
     saveMessage.textContent = 'エラーが発生しました。もう一度お試しください。';
-    saveMessage.style.color = 'var(--status-full)'; // 赤
+    saveMessage.style.color = 'var(--status-full)';
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = 'この内容で更新する';
